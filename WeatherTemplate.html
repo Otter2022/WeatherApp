@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+        .input-group {
+            display: flex;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .text-box {
+            flex: 1;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .submit-button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: #45a049;
+        }
+        .chart-container {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .city-info, .weather-info {
+            margin-top: 20px;
+        }
+	.weather-info img {
+ 	   width: 50px; /* Adjust size as needed */
+ 	   height: 50px; /* Adjust size as needed */
+ 	   margin-top: 10px;
+ 	   background-color: #ADD8E6; /* Background color */
+ 	   border: 2px solid #000000; /* Border color */
+ 	   border-radius: 5px; /* Optional: rounded corners */
+ 	   padding: 5px; /* Padding around the icon */
+ 	   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Shadow effect */
+	}
+
+
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+	<h1>Weather search API</h1>
+
+	<div id="zipError">
+        <form method="POST" action="/" class="input-group">
+            <input type="text" class="text-box" id="location" name="location" placeholder="Enter zip code or city...">
+            <button class="submit-button" name="submit">Submit</button>
+        </form>
+        <div id="zipFeedback"></div>
+
+	<!--
+        <form method="POST" action="/" class="input-group">
+            <input type="text" class="text-box" id="location" name="location" placeholder="Enter zip code or city...">
+            <button class="submit-button" name="submit">Submit</button>
+	</form> -->
+	
+        <div class="city-info">
+            <h2>, </h2>
+        </div>
+        
+
+        
+        <div class="weather-info">
+           	<p>Weather: </p>
+       		<p>Description: </p>
+            	<p>Wind Speed:  m/s</p>
+	    	<img src="http://openweathermap.org/img/wn/@2x.png" alt="Weather Icon">
+
+	</div>
+        
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+        
+    
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var ctx = document.getElementById('myChart').getContext('2d');
+            var data = JSON.parse('{{ data|tojson }}');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+     <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                  var elZip = document.getElementById('location');
+
+                  function checkzip(minLength, div, feedback, error) {
+                        var elMsg = document.getElementById(feedback);
+                        var elError = document.getElementById(error);
+                        var el = document.getElementById(div);
+                        var zipRegex = /^\d+$/;
+    const int_and_num = /^(?=.*[a-zA-Z])(?=.*\d).+$/;
+    const num_only = /^\d+$/;
+
+    el.classList.remove("has-error", "has-success");
+    elMsg.innerHTML = '';
+
+    if (el.value && num_only.test(el.value)) {
+        // If the input contains only numbers
+        if (el.value.length < minLength || el.value.length > minLength) {
+            elMsg.innerHTML = 'Error: Zip code lenght must be ' + minLength + ' characters';
+            el.classList.add("has-error");
+        } else {
+            el.classList.add("has-success");
+        }
+    } else if (el.value && int_and_num.test(el.value)) {
+        // If the input contains both letters and numbers
+        elMsg.innerHTML = 'Error: Enter a zip code or city name, not both.';
+        el.classList.add("has-error");
+    } else {
+        el.classList.add("has-success");
+    }
+}
+                  document.querySelector("form").addEventListener('submit', function(event) {
+                        checkzip(5, 'location', 'zipFeedback', 'zipError');
+                        if (document.getElementById('location').classList.contains('has-error')) {
+                          event.preventDefault();
+                        }
+                  }, false);
+                  elZip.addEventListener('blur', function() {
+                        checkzip(5, 'location', 'zipFeedback', 'zipError');
+                  }, false);
+                });
+     </script>
+   
+
+</body>
+</html>
